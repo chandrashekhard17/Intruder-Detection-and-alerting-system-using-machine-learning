@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register Face</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Register a New Face</h1>
+    
+    <!-- Enter Name -->
+    <input type="text" id="name" placeholder="Enter Name" required>
+    
+    <!-- Upload Image Option -->
+    <h3>Upload Image:</h3>
+    <input type="file" id="image" accept="image/*">
+    
+    <!-- OR Take a Photo Option -->
+    <h3>Take a Photo:</h3>
+    <button onclick="startCamera()">Start Camera</button>
+    <video id="video" width="400" height="300" autoplay style="display:none;"></video>
+    <button id="captureBtn" onclick="capturePhoto()" style="display:none;">Capture Photo</button>
+    <canvas id="canvas" width="400" height="300" style="display:none;"></canvas>
+    <img id="photo" style="display:none;" alt="Captured Image">
+
+    <!-- Register Button -->
+    <button onclick="registerFace()">Register Face</button>
+    
+    <!-- Message Display -->
+    <p id="message"></p>
+    
+    <!-- Link to Detection Page -->
+    <a href="/detect">Go to Face Detection</a>
+
+    <script>
+        let videoStream = null;
+
+        // Start the Camera
+        function startCamera() {
+            const video = document.getElementById("video");
+            const captureBtn = document.getElementById("captureBtn");
+            
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    videoStream = stream;
+                    video.srcObject = stream;
+                    video.style.display = "block";
+                    captureBtn.style.display = "block";
+                })
+                .catch(err => {
+                    console.error("Error accessing the camera: ", err);
+                    document.getElementById("message").innerText = "Camera access denied or not available.";
+                });
+        }
+
+        // Capture Photo from Camera
+        function capturePhoto() {
+            const video = document.getElementById("video");
+            const canvas = document.getElementById("canvas");
+            const context = canvas.getContext("2d");
+            const photo = document.getElementById("photo");
+
+            context.drawImage(video, 0, 0, 400, 300);
+            const imageUrl = canvas.toDataURL('image/jpeg');
+            photo.src = imageUrl;
+            photo.style.display = "block";
+            
+            // Stop the camera
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                video.style.display = "none";
+                document.getElementById("captureBtn").style.display = "none";
+            }
+        }
+
+        // Register Face
+        function registerFace() {
+            const name = document.getElementById("name").value;
+            const fileInput = document.getElementById("image");
+            const capturedImage = canvas.toDataURL('image/jpeg');
+
+            if (!name) {
+                document.getElementById("message").innerText = "Please enter a name.";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("name", name);
+
+            if (fileInput.files.length > 0) {
+                formData.append("image", fileInput.files[0]);
+            } else if (photo.src) {
+                formData.append("captured_image", capturedImage);
+            } else {
+                document.getElementById("message").innerText = "Please upload an image or capture a photo.";
+                return;
+            }
+
+            fetch('/register', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("message").innerText = data.message || data.error;
+            })
+            .catch(error => {
+                document.getElementById("message").innerText = "Error during registration.";
+                console.error(error);
+            });
+        }
+    </script>
+</body>
+</html>

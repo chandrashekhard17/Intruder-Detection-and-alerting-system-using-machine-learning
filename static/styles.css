@@ -1,0 +1,36 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 30px;
+}
+
+input, button {
+    padding: 10px;
+    margin: 10px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+video {
+    border: 3px solid #ccc;
+}
+
+img {
+    border: 3px solid #000;
+    margin-top: 10px;
+}
+
+p {
+    font-size: 16px;
+    color: #ff0000;
+}

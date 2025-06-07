@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Detection</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>Face Detection</h1>
+    <button onclick="startDetection()">Start Detection</button>
+    <p id="status"></p>
+    <a href="/">Go Back to Register Face</a>
+
+    <script>
+        function startDetection() {
+            fetch('/start-detection')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("status").innerText = data.message || data.error;
+            })
+            .catch(error => {
+                document.getElementById("status").innerText = "Error: " + error;
+                console.error(error);
+            });
+        }
+    </script>
+</body>
+</html>
